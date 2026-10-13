@@ -35,14 +35,38 @@ footer{color:#9aacca;font-size:12px;text-align:center;padding-top:12px}
 .fs-exit{display:none;position:fixed;right:15px;top:15px;z-index:101}.fs-mode~.fs-exit{display:inline-flex}
 @media(max-width:700px){.shell{padding:15px 10px}.brand strong{font-size:15px}.brand small{font-size:11px}.stage{border-radius:10px}.toolbar{gap:10px}.hint{display:none}.thumb img{width:88px}.thumbnails{gap:6px}.counter{min-width:76px}button,.download{font-size:12px;padding:7px 10px}}
 @media(prefers-reduced-motion:reduce){.progress{transition:none}}
+
+/* Clickable section navigation */
+.section-heading{display:flex;justify-content:space-between;align-items:end;gap:14px;margin:5px 0 12px}
+.section-heading h1{font-size:clamp(20px,3vw,30px);margin:0;font-weight:750;letter-spacing:-.025em}
+.section-heading p{margin:5px 0 0;color:#b8c9e6;font-size:13px}
+.section-nav{display:flex;gap:9px;overflow-x:auto;padding:4px 2px 14px;scrollbar-width:thin;scrollbar-color:#697fa2 transparent}
+.section-nav button{white-space:nowrap;flex-shrink:0;font-weight:650;border:1px solid #4c648a;padding:10px 16px;border-radius:999px;background:#ffffff0a;transition:background .15s,border-color .15s}
+.section-nav button:hover{background:#ffffff22}
+.section-nav button.active{background:#64d8d3;color:#0b2440;border-color:#64d8d3}
+.section-hint{font-size:12px;color:#aebfda;margin:0 0 15px}
+@media(max-width:700px){.section-heading h1{font-size:21px}.section-nav{gap:7px}.section-nav button{padding:8px 12px}.section-hint{font-size:11px}}
 </style>
 </head>
 <body>
 <main class="shell">
 <header>
- <div class="brand"><div class="brandmark" aria-hidden="true">YR</div><div><strong>Yohana Ritonga</strong><small>Professional Portfolio · 2026</small></div></div>
+ <div class="brand"><div class="brandmark" aria-hidden="true">YR</div><div><strong>Yohana Ritonga</strong><small>Interactive Portfolio · 2026</small></div></div>
  <div class="actions"><button id="fullTop" type="button" aria-label="Open fullscreen">⛶ &nbsp;Fullscreen</button></div>
 </header>
+<section aria-label="Portfolio sections">
+ <div class="section-heading"><div><h1 id="sectionTitle">Welcome to my portfolio</h1><p id="sectionSubtitle">Choose a section below to explore</p></div></div>
+ <nav class="section-nav" id="sectionNav" aria-label="Portfolio menu">
+  <button type="button" data-start="0" data-key="home">🏠 Home</button>
+  <button type="button" data-start="2" data-key="about">👤 About Me</button>
+  <button type="button" data-start="3" data-key="education">🎓 Education</button>
+  <button type="button" data-start="4" data-key="skills">✨ Skills</button>
+  <button type="button" data-start="5" data-key="experience">💼 Work Experience</button>
+  <button type="button" data-start="6" data-key="projects">📁 Projects</button>
+  <button type="button" data-start="11" data-key="contact">✉️ Contact</button>
+ </nav>
+ <p class="section-hint">Klik menu untuk membuka bagian yang kamu pilih. Gunakan Next / Previous untuk melihat slide lainnya.</p>
+</section>
 <div class="stage" id="stage" aria-label="Portfolio slide viewer"><img id="slide" src="" alt="Yohana Ritonga portfolio, slide 1 of 12" width="1800" height="1013" fetchpriority="high"></div>
 <button class="fs-exit" id="fsExit" type="button">✕ Exit fullscreen</button>
 <div class="toolbar"><div class="navgroup"><button id="prev" type="button" aria-label="Previous slide">← &nbsp;Previous</button><span class="counter" id="counter" aria-live="polite">1 / 12</span><button id="next" class="primary" type="button" aria-label="Next slide">Next&nbsp; →</button></div><div class="track" aria-hidden="true"><div id="progress" class="progress" style="width:8.333%"></div></div><div class="hint">Use ← → arrow keys to navigate</div></div>
@@ -69,7 +93,22 @@ footer{color:#9aacca;font-size:12px;text-align:center;padding-top:12px}
  const path=i=>embeddedSlides[i];
  const thumbs=[];
  for(let i=0;i<total;i++){const b=document.createElement('button');b.type='button';b.className='thumb';b.setAttribute('aria-label','Go to slide '+(i+1));b.innerHTML='<img loading="lazy" src="'+path(i)+'" alt="Slide '+(i+1)+' thumbnail">';b.addEventListener('click',()=>show(i));strip.appendChild(b);thumbs.push(b)}
- function show(i){current=Math.min(total-1,Math.max(0,i));slide.src=path(current);slide.alt='Yohana Ritonga portfolio, slide '+(current+1)+' of '+total;counter.textContent=(current+1)+' / '+total;progress.style.width=((current+1)/total*100)+'%';document.getElementById('prev').disabled=current===0;document.getElementById('next').disabled=current===total-1;thumbs.forEach((el,j)=>{el.classList.toggle('active',j===current);el.setAttribute('aria-current',j===current?'true':'false')});thumbs[current].scrollIntoView({behavior:'smooth',block:'nearest',inline:'nearest'});if(location.hash!=='#slide-'+(current+1)){history.replaceState(null,'','#slide-'+(current+1))}}
+ const sectionNav=document.getElementById('sectionNav');
+ const sections=[
+  {start:0,end:1,title:'Welcome to my portfolio',subtitle:'A glimpse of my professional journey'},
+  {start:2,end:2,title:'About Me',subtitle:'Business development, sales strategy and client relations'},
+  {start:3,end:3,title:'Education',subtitle:'Academic background'},
+  {start:4,end:4,title:'Personal Skills',subtitle:'Skills and strengths'},
+  {start:5,end:5,title:'Work Experience',subtitle:'Professional experience and roles'},
+  {start:6,end:10,title:'Selected Projects',subtitle:'IDS · Stella Maris · Briton · Non-Corporate projects'},
+  {start:11,end:11,title:'Contact',subtitle:'Let’s connect'}
+ ];
+ sectionNav.querySelectorAll('button').forEach(btn=>btn.addEventListener('click',()=>{show(Number(btn.dataset.start));document.getElementById('stage').scrollIntoView({behavior:'smooth',block:'start'});}));
+ function show(i){current=Math.min(total-1,Math.max(0,i));
+ const section=sections.find(x=>current>=x.start&&current<=x.end)||sections[0];
+ document.getElementById('sectionTitle').textContent=section.title;
+ document.getElementById('sectionSubtitle').textContent=section.subtitle;
+ sectionNav.querySelectorAll('button').forEach(b=>{const active=Number(b.dataset.start)===section.start;b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false');});slide.src=path(current);slide.alt='Yohana Ritonga portfolio, slide '+(current+1)+' of '+total;counter.textContent=(current+1)+' / '+total;progress.style.width=((current+1)/total*100)+'%';document.getElementById('prev').disabled=current===0;document.getElementById('next').disabled=current===total-1;thumbs.forEach((el,j)=>{el.classList.toggle('active',j===current);el.setAttribute('aria-current',j===current?'true':'false')});thumbs[current].scrollIntoView({behavior:'smooth',block:'nearest',inline:'nearest'});if(location.hash!=='#slide-'+(current+1)){history.replaceState(null,'','#slide-'+(current+1))}}
  document.getElementById('prev').addEventListener('click',()=>show(current-1));document.getElementById('next').addEventListener('click',()=>show(current+1));
  const fsExit=document.getElementById('fsExit');const isFs=()=>document.fullscreenElement===stage||stage.classList.contains('fs-mode');
  function updateFs(){const real=document.fullscreenElement===stage;fsExit.style.display=real||stage.classList.contains('fs-mode')?'inline-flex':'none';if(!real&&document.fullscreenEnabled)stage.classList.remove('fs-mode')}
